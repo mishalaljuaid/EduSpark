@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduSpark — موقع متخصص لرفع مستوى التدريس لمعلمي اللغة الإنجليزية</title>
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<!-- Moyasar -->
+<link rel="stylesheet" href="https://cdn.moyasar.com/mpf/1.14.0/moyasar.css">
+<script src="https://cdn.moyasar.com/mpf/1.14.0/moyasar.js"></script>
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800;900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   EduSpark — Main Stylesheet
+   ============================================================ */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --nv:#151C32;--nv2:#1E2747;--gld:#F5A523;--gld2:#E8961A;
+  --cr:#F7F5F0;--wh:#FFF;
+  --g1:#F4F2ED;--g2:#E8E5DE;--g3:#B8B3A8;--g4:#6E6A62;
+  --pdf-c:#DC2626;--pdf-b:#FEF2F2;
+  --wd-c:#1D4ED8;--wd-b:#EFF6FF;
+  --pt-c:#EA580C;--pt-b:#FFF7ED;
+  --zp-c:#7C3AED;--zp-b:#F5F3FF;
+  --rd:#DC2626;--gr:#059669;
+  --pc:#0D9488;--pb:#F0FDFA;
+  --mc:#7C3AED;--mb:#F5F3FF;
+  --hc:#1D4ED8;--hb:#EFF6FF;
+  --radius:12px;
+}
+body{font-family:'Tajawal',sans-serif;background:var(--cr);min-height:100vh;color:var(--nv)}
+[dir=ltr]{font-family:'Poppins',sans-serif}
+/* NAV */
+.nav{background:var(--nv);height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.2)}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none}
+.logo-ico{width:36px;height:36px;background:var(--gld);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.logo-txt{font-family:'Poppins',sans-serif;font-weight:800;font-size:20px;color:#fff}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px}
+.nav-r{display:flex;align-items:center;gap:9px}
+.nb{display:flex;align-items:center;gap:6px;padding:8px 15px;border-radius:10px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:all .18s}
+.nb-lang{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);font-family:'Tajawal',sans-serif}
+.nb-lang:hover{background:rgba(255,255,255,.2)}
+.nb-out{background:rgba(245,165,35,.13);color:var(--gld);border:1px solid rgba(245,165,35,.3)}
+.nb-out:hover{background:rgba(245,165,35,.22)}
+.nb-gld{background:var(--gld);color:#fff}
+.nb-gld:hover{background:var(--gld2)}
+.cp{position:relative}
+.cbdg{position:absolute;top:-7px;left:-7px;width:18px;height:18px;background:var(--rd);color:#fff;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center}
+[dir=ltr] .cbdg{left:auto;right:-7px}
+/* TOAST */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:12px;color:#fff;font-weight:700;font-size:13px;z-index:9999;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.18);animation:toastIn .25s ease;pointer-events:none}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+/* LOADING */
+.loading-screen{position:fixed;inset:0;background:var(--nv);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9000;transition:opacity .4s}
+.loading-screen.hidden{opacity:0;pointer-events:none}
+.loading-logo{font-family:'Poppins',sans-serif;font-weight:800;font-size:32px;color:#fff;margin-top:16px}
+.loading-logo span{color:var(--gld)}
+.spinner{width:44px;height:44px;border:3px solid rgba(245,165,35,.3);border-top-color:var(--gld);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* HERO */
+.hero{background:linear-gradient(140deg,#0d1424 0%,#151C32 45%,#1a2340 100%);padding:60px 32px 66px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-40px;width:280px;height:280px;background:rgba(245,165,35,.07);border-radius:50%}
+.hero::after{content:'';position:absolute;bottom:-80px;left:20px;width:320px;height:320px;background:rgba(13,148,136,.06);border-radius:50%}
+.hi{position:relative;z-index:1;max-width:660px;margin:0 auto}
+.hbdg{display:inline-flex;align-items:center;gap:7px;background:rgba(245,165,35,.15);border:1px solid rgba(245,165,35,.3);border-radius:50px;padding:6px 16px;margin-bottom:22px;font-size:12px;color:var(--gld);font-weight:700}
+.hero h1{font-weight:800;color:#fff;line-height:1.25;margin-bottom:16px;font-size:40px}
+.hero h1 span{color:var(--gld)}
+.hero p{color:rgba(255,255,255,.58);font-size:15px;line-height:1.9;margin-bottom:28px;max-width:560px;margin-left:auto;margin-right:auto}
+.hcards{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:22px}
+.hcard{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:11px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);font-size:12px;font-weight:700;color:rgba(255,255,255,.8)}
+.htags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.htag{display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:50px;font-size:11px;font-weight:700}
+/* FEATURES */
+.feats{background:#fff;border-bottom:2px solid var(--g2);padding:26px 32px}
+.feats-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.feat-box{text-align:center;padding:8px}
+.feat-ico{font-size:24px;margin-bottom:9px}
+.feat-title{font-weight:800;color:var(--nv);font-size:12px;margin-bottom:3px}
+.feat-sub{color:var(--g3);font-size:11px;line-height:1.65}
+/* STATS */
+.sbar{background:var(--nv2);padding:15px 32px;display:flex;justify-content:center;gap:52px;flex-wrap:wrap}
+.sv{font-family:'Poppins',sans-serif;font-weight:800;font-size:22px;color:#fff;text-align:center}
+.sl{color:rgba(255,255,255,.38);font-size:10px;margin-top:3px;text-align:center}
+/* FILTERS */
+.fwrap{max-width:1100px;margin:26px auto 0;padding:0 28px}
+.fr{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.sw2{flex:1;min-width:200px;position:relative}
+.si{width:100%;padding:11px 14px 11px 40px;border-radius:11px;border:2px solid var(--g2);font-size:13px;font-family:'Tajawal',sans-serif;background:#fff;outline:none;transition:border-color .2s;color:var(--nv)}
+[dir=rtl] .si{padding:11px 40px 11px 14px}
+.si:focus{border-color:var(--gld)}
+.sic{position:absolute;top:50%;transform:translateY(-50%);color:var(--g3);font-size:15px;pointer-events:none;left:13px}
+[dir=rtl] .sic{left:auto;right:13px}
+.fb{padding:10px 16px;border-radius:10px;border:2px solid var(--g2);background:#fff;cursor:pointer;font-size:12px;font-weight:700;color:var(--g4);font-family:inherit;transition:all .18s}
+.fb:hover{border-color:var(--g3);background:var(--g1)}
+.fb.fa{background:var(--nv);color:#fff;border-color:var(--nv)}
+.gf{max-width:1100px;margin:0 auto 20px;padding:0 28px;display:flex;gap:8px;flex-wrap:wrap}
+.gfb{padding:6px 14px;border-radius:50px;border:1.5px solid var(--g2);background:#fff;cursor:pointer;font-size:11px;font-weight:700;color:var(--g4);font-family:inherit;transition:all .18s}
+.gfb:hover{border-color:var(--g3)}
+.gfb.ga-all{background:var(--nv);color:#fff;border-color:var(--nv)}
+.gfb.ga-pri{background:var(--pb);color:var(--pc);border-color:var(--pc)}
+.gfb.ga-mid{background:var(--mb);color:var(--mc);border-color:var(--mc)}
+.gfb.ga-hi{background:var(--hb);color:var(--hc);border-color:var(--hc)}
+/* PRODUCTS */
+.ps{max-width:1100px;margin:0 auto;padding:0 28px 48px}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.st{font-weight:700;font-size:19px;color:var(--nv)}
+.pcount{color:var(--g3);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:22px}
+.card{background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--g2);transition:transform .22s,box-shadow .22s}
+.card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,.1)}
+.ch{padding:24px 20px;text-align:center;position:relative}
+.ci-ico{width:58px;height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:24px}
+.fbdg{position:absolute;top:11px;right:11px;background:var(--gld);color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:50px}
+[dir=ltr] .fbdg{right:auto;left:11px}
+.cb{padding:15px 18px 20px}
+.ctgs{display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap}
+.tg{font-size:10px;font-weight:700;padding:3px 9px;border-radius:50px}
+.ct{font-weight:800;color:var(--nv);font-size:13px;line-height:1.5;margin-bottom:5px}
+.cd{color:var(--g3);font-size:11px;line-height:1.75;margin-bottom:11px}
+.cm{font-size:11px;color:var(--g3);margin-bottom:13px}
+.cf{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pr{font-family:'Poppins',sans-serif;font-weight:800;font-size:20px;color:var(--nv)}
+.pu{font-size:11px;color:var(--g3);font-weight:400}
+.ab{display:flex;align-items:center;gap:5px;padding:9px 15px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:12px;font-family:inherit;transition:all .18s;white-space:nowrap}
+.ab-dk{background:var(--nv);color:#fff}
+.ab-dk:hover{background:#0d1220}
+.ab-gn{background:#ECFDF5;color:var(--gr)}
+.nop{text-align:center;padding:80px 0;color:var(--g3)}
+/* CART DRAWER */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;backdrop-filter:blur(2px)}
+.drw{position:fixed;top:0;bottom:0;width:370px;background:var(--cr);z-index:301;padding:24px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+[dir=rtl] .drw{right:0;box-shadow:-10px 0 40px rgba(0,0,0,.15)}
+[dir=ltr] .drw{left:0;box-shadow:10px 0 40px rgba(0,0,0,.15)}
+.dh{display:flex;align-items:center;justify-content:space-between}
+.dt{font-family:'Poppins',sans-serif;font-weight:800;font-size:18px;color:var(--nv)}
+.xb{width:32px;height:32px;background:var(--g1);border:none;border-radius:9px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.xb:hover{background:var(--g2)}
+.di{background:#fff;border-radius:12px;padding:13px;border:1px solid var(--g2);display:flex;gap:9px;align-items:flex-start;justify-content:space-between}
+.dn{font-weight:700;color:var(--nv);font-size:12px;margin-bottom:5px}
+.dp2{font-family:'Poppins',sans-serif;font-weight:800;color:var(--gld);font-size:13px}
+.cart-footer{border-top:2px solid var(--g2);padding-top:14px;margin-top:auto}
+.ckb{width:100%;padding:14px;background:var(--gld);color:#fff;border:none;border-radius:12px;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer;transition:all .18s}
+.ckb:hover{background:var(--gld2)}
+.ec{text-align:center;padding:60px 0;color:var(--g3);flex:1}
+/* CHECKOUT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:20px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;padding:28px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.modal-title{font-weight:800;font-size:18px;color:var(--nv)}
+.fi{width:100%;padding:11px 14px;border-radius:10px;border:2px solid var(--g2);font-size:13px;font-family:inherit;outline:none;transition:border-color .2s;margin-bottom:13px}
+.fi:focus{border-color:var(--gld)}
+.order-summary{background:var(--g1);border-radius:12px;padding:14px;margin-bottom:18px}
+.os-item{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;color:var(--g4)}
+.os-total{display:flex;justify-content:space-between;font-weight:800;font-size:15px;color:var(--nv);padding-top:9px;border-top:1px solid var(--g2);margin-top:6px}
+/* FOOTER */
+.footer{background:var(--nv);color:rgba(255,255,255,.45);padding:26px 32px;text-align:center}
+.fl2{display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:7px}
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div class="loading-screen" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-logo">Edu<span>Spark</span></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast" style="display:none"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="logo" href="index.html">
+    <div class="logo-ico">⚡</div>
+    <div><div class="logo-txt">EduSpark</div><div class="logo-sub" id="nav-tagline">سوق مواد اللغة الإنجليزية للمعلمين</div></div>
+  </a>
+  <div class="nav-r">
+    <button class="nb nb-lang" onclick="toggleLang()" id="lang-btn">English</button>
+    <button class="nb nb-out" onclick="window.location.href='admin.html'">⚙️ <span id="nav-admin">لوحة التحكم</span></button>
+    <div class="cp">
+      <button class="nb nb-gld" onclick="openCart()">🛒 <span id="nav-cart-label">السلة</span></button>
+      <span class="cbdg" id="cart-badge" style="display:none">0</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hi">
+    <div class="hbdg" id="hero-badge">📚 المنصة الأولى لمعلمي اللغة الإنجليزية</div>
+    <h1 id="hero-title">وفّر وقتك، ارفع مستوى<br><span>تدريسك</span></h1>
+    <p id="hero-desc">سوق متخصص يجمع أفضل المواد التعليمية الجاهزة لمعلمي اللغة الإنجليزية — أوراق عمل، تحضيرات دروس، عروض تقديمية، واختبارات جاهزة للتطبيق الفوري.</p>
+    <div class="hcards">
+      <span class="hcard">✅ <span id="hc1">جاهز للاستخدام فوراً</span></span>
+      <span class="hcard">⏱️ <span id="hc2">موفّر الوقت</span></span>
+      <span class="hcard">👩‍🏫 <span id="hc3">مُصمَّم من معلمين</span></span>
+      <span class="hcard">📚 <span id="hc4">لجميع الصفوف</span></span>
+    </div>
+    <div class="htags">
+      <span class="htag" style="background:var(--pdf-b);color:var(--pdf-c)">📄 PDF</span>
+      <span class="htag" style="background:var(--wd-b);color:var(--wd-c)">📝 Word</span>
+      <span class="htag" style="background:var(--pt-b);color:var(--pt-c)">📊 PowerPoint</span>
+      <span class="htag" style="background:var(--zp-b);color:var(--zp-c)">🗜️ ZIP</span>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES BAR -->
+<section class="feats">
+  <div class="feats-inner">
+    <div class="feat-box"><div class="feat-ico">🚀</div><div class="feat-title" id="ft1">جاهز للاستخدام فوراً</div><div class="feat-sub" id="fs1">مواد معدّة احترافياً قابلة للتعديل</div></div>
+    <div class="feat-box"><div class="feat-ico">⏱️</div><div class="feat-title" id="ft2">موفّر الوقت الأول</div><div class="feat-sub" id="fs2">اختصر ساعات التحضير وركّز على التدريس</div></div>
+    <div class="feat-box"><div class="feat-ico">📋</div><div class="feat-title" id="ft3">معايير المنهج</div><div class="feat-sub" id="fs3">منسجمة مع المناهج الرسمية لكل صف</div></div>
+    <div class="feat-box"><div class="feat-ico">🔒</div><div class="feat-title" id="ft4">دفع آمن 100%</div><div class="feat-sub" id="fs4">بوابة ميسر المعتمدة + حماية كاملة</div></div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="sbar">
+  <div><div class="sv" id="stat1-v">12+</div><div class="sl" id="stat1-l">مادة تعليمية</div></div>
+  <div><div class="sv" id="stat2-v">10,000+</div><div class="sl" id="stat2-l">تنزيل</div></div>
+  <div><div class="sv">KG–12</div><div class="sl" id="stat3-l">جميع الصفوف</div></div>
+  <div><div class="sv">4.8 ⭐</div><div class="sl" id="stat4-l">متوسط التقييم</div></div>
+</div>
+
+<!-- FILTERS -->
+<div class="fwrap">
+  <div class="fr">
+    <div class="sw2">
+      <span class="sic">🔍</span>
+      <input class="si" id="search-input" placeholder="ابحث عن مادة أو صف دراسي..." oninput="filterProducts()">
+    </div>
+    <button class="fb fa" onclick="setTypeFilter('all')" data-type="all" id="tf-all">الكل</button>
+    <button class="fb" onclick="setTypeFilter('pdf')" data-type="pdf" id="tf-pdf">PDF</button>
+    <button class="fb" onclick="setTypeFilter('word')" data-type="word" id="tf-word">Word</button>
+    <button class="fb" onclick="setTypeFilter('ppt')" data-type="ppt" id="tf-ppt">بوربوينت</button>
+    <button class="fb" onclick="setTypeFilter('zip')" data-type="zip" id="tf-zip">مضغوط</button>
+  </div>
+</div>
+<div class="gf">
+  <button class="gfb ga-all" onclick="setGradeFilter('all')" id="gf-all">كل الصفوف</button>
+  <button class="gfb" onclick="setGradeFilter('pri')" id="gf-pri">🌱 ابتدائي (KG–6)</button>
+  <button class="gfb" onclick="setGradeFilter('mid')" id="gf-mid">🎓 متوسط (7–9)</button>
+  <button class="gfb" onclick="setGradeFilter('hi')"  id="gf-hi">🏫 ثانوي (10–12)</button>
+</div>
+
+<!-- PRODUCTS SECTION -->
+<div class="ps">
+  <div class="sh">
+    <span class="st" id="section-title">المواد التعليمية المتاحة</span>
+    <span class="pcount" id="product-count"></span>
+  </div>
+  <div class="grid" id="products-grid">
+    <div class="nop" style="grid-column:1/-1">
+      <div style="font-size:36px;margin-bottom:12px;opacity:.3">⏳</div>
+      <p>جاري تحميل المواد التعليمية...</p>
+    </div>
+  </div>
+</div>
+
+<!-- CART DRAWER -->
+<div class="overlay" id="overlay" style="display:none" onclick="closeCart()"></div>
+<div class="drw" id="cart-drawer" style="display:none">
+  <div class="dh">
+    <span class="dt" id="cart-title">🛒 سلة التسوق</span>
+    <button class="xb" onclick="closeCart()">✕</button>
+  </div>
+  <div id="cart-items" style="flex:1;overflow-y:auto"></div>
+  <div class="cart-footer" id="cart-footer" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <span id="cart-total-label" style="font-weight:800;color:var(--nv);font-size:14px">الإجمالي</span>
+      <span id="cart-total" style="font-family:'Poppins',sans-serif;font-weight:800;font-size:22px;color:var(--gld)">0 ر.س</span>
+    </div>
+    <button class="ckb" id="checkout-btn" onclick="openCheckout()">متابعة الدفع ←</button>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkout-modal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="checkout-title">إتمام الطلب</span>
+      <button class="xb" onclick="closeCheckout()">✕</button>
+    </div>
+    <!-- Order Summary -->
+    <div class="order-summary" id="order-summary"></div>
+    <!-- Buyer Info -->
+    <div id="buyer-form">
+      <input class="fi" type="text" id="buyer-name" placeholder="الاسم الكامل *">
+      <input class="fi" type="email" id="buyer-email" placeholder="البريد الإلكتروني * (لإرسال روابط التحميل)">
+    </div>
+    <!-- Moyasar Payment Form -->
+    <div id="moyasar-container" style="display:none">
+      <div class="mysr-form"></div>
+    </div>
+    <button class="ckb" id="proceed-to-pay" onclick="proceedToPayment()" style="margin-top:8px">
+      الدفع الآن 🔒
+    </button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="fl2">
+    <div style="width:26px;height:26px;background:var(--gld);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px">⚡</div>
+    <span style="font-family:'Poppins',sans-serif;font-weight:800;font-size:16px;color:#fff">EduSpark</span>
+  </div>
+  <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:5px">جميع المدفوعات محمية بواسطة ميسر | SSL Secured</div>
+  <div style="font-size:11px">© 2025 EduSpark — وفّر وقتك، ارفع مستوى تدريسك</div>
+</footer>
+
+<script>
+// ============================================================
+// ⚠️  ضع مفاتيحك هنا بعد إنشاء الحسابات
+// ============================================================
+const SUPABASE_URL  = 'https://sqyxcatirnmfldzllhaf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxeXhjYXRpcm5tZmxkemxsaGFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MTUzNzksImV4cCI6MjA5MzI5MTM3OX0.-NvaFiq6K5t3ss1QjYD3zKFws0Z8LjNnf11Yk4jYM1A';
+const MOYASAR_PUB   = 'pk_test_YOUR_PUBLISHABLE_KEY'; // مفتاح النشر فقط (آمن)
+const EDGE_FN_URL   = `${SUPABASE_URL}/functions/v1/verify-payment`;
+// ============================================================
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// State
+let allProducts = [], cart = [], lang = 'ar', typeFilter = 'all', gradeFilter = 'all';
+const PRI = ['KG','1','2','3','4','5','6'], MID = ['7','8','9'];
+const FT = {
+  pdf:  {l:'PDF',     c:'var(--pdf-c)',b:'var(--pdf-b)',e:'📄'},
+  word: {l:'Word',    c:'var(--wd-c)', b:'var(--wd-b)', e:'📝'},
+  ppt:  {l:'PPT',     c:'var(--pt-c)', b:'var(--pt-b)', e:'📊'},
+  zip:  {l:'ZIP',     c:'var(--zp-c)', b:'var(--zp-b)', e:'🗜️'},
+};
+const I18N = {
+  ar: {
+    tagline:'سوق مواد اللغة الإنجليزية للمعلمين', badge:'📚 المنصة الأولى لمعلمي اللغة الإنجليزية',
+    h1:'وفّر وقتك، ارفع مستوى<br><span>تدريسك</span>',
+    desc:'سوق متخصص يجمع أفضل المواد التعليمية الجاهزة لمعلمي اللغة الإنجليزية.',
+    hc1:'جاهز للاستخدام فوراً', hc2:'موفّر الوقت', hc3:'مُصمَّم من معلمين', hc4:'لجميع الصفوف',
+    ft1:'جاهز للاستخدام فوراً', fs1:'مواد معدّة احترافياً قابلة للتعديل',
+    ft2:'موفّر الوقت الأول', fs2:'اختصر ساعات التحضير وركّز على التدريس',
+    ft3:'معايير المنهج', fs3:'منسجمة مع المناهج الرسمية لكل صف',
+    ft4:'دفع آمن 100%', fs4:'بوابة ميسر المعتمدة + حماية كاملة',
+    s1v:'مادة تعليمية', s2v:'تنزيل', s3v:'جميع الصفوف', s4v:'متوسط التقييم',
+    admin:'لوحة التحكم', cartL:'السلة', secTitle:'المواد التعليمية المتاحة',
+    fAll:'الكل', fPDF:'PDF', fWD:'Word', fPPT:'بوربوينت', fZIP:'مضغوط',
+    gAll:'كل الصفوف', gPri:'🌱 ابتدائي (KG–6)', gMid:'🎓 متوسط (7–9)', gHi:'🏫 ثانوي (10–12)',
+    srPh:'ابحث عن مادة أو صف دراسي...', addC:'احصل عليها', inC:'✓ في السلة',
+    dls:'تنزيل', sar:'ر.س', feat:'★ مميز', crtTitle:'🛒 سلة التسوق', empty:'السلة فارغة',
+    totalL:'الإجمالي', ckoBtn:'متابعة الدفع ←', chkTitle:'إتمام الطلب', payBtn:'الدفع الآن 🔒',
+    namePh:'الاسم الكامل *', emailPh:'البريد الإلكتروني * (لإرسال روابط التحميل)',
+    tAdded:'تمت الإضافة ✓', tExists:'المادة في السلة بالفعل', tErrFields:'يرجى إدخال الاسم والبريد',
+    langBtn:'English', products:'مادة', pri:'ابتدائي', mid:'متوسط', hi:'ثانوي',
+  },
+  en: {
+    tagline:"The English Teacher's Resource Marketplace", badge:'📚 Built for English Language Teachers',
+    h1:'Save Time. Elevate<br><span>Your Teaching.</span>',
+    desc:'A dedicated marketplace for ready-to-use English teaching materials — worksheets, lesson plans, presentations, and tests.',
+    hc1:'Classroom-Ready', hc2:'Time-Saving', hc3:'Teacher-Made', hc4:'All Grade Levels',
+    ft1:'Ready to Use Instantly', fs1:'Professionally prepared, fully editable materials',
+    ft2:'Your #1 Time-Saver', fs2:'Cut hours of lesson prep and focus on teaching',
+    ft3:'Curriculum Aligned', fs3:'All materials aligned to official curriculum',
+    ft4:'100% Secure Payments', fs4:'Moyasar certified gateway + full protection',
+    s1v:'Teaching Materials', s2v:'Downloads', s3v:'All Grades', s4v:'Average Rating',
+    admin:'Dashboard', cartL:'Cart', secTitle:'Available Teaching Materials',
+    fAll:'All Types', fPDF:'PDF', fWD:'Word', fPPT:'PowerPoint', fZIP:'ZIP Bundle',
+    gAll:'All Grades', gPri:'🌱 Primary (KG–6)', gMid:'🎓 Middle (7–9)', gHi:'🏫 High School (10–12)',
+    srPh:'Search by name or grade...', addC:'Get Resource', inC:'✓ In Cart',
+    dls:'downloads', sar:'SAR', feat:'★ Featured', crtTitle:'🛒 Shopping Cart', empty:'Your cart is empty',
+    totalL:'Total', ckoBtn:'Proceed to Checkout →', chkTitle:'Complete Order', payBtn:'Pay Now 🔒',
+    namePh:'Full Name *', emailPh:'Email Address * (download links will be sent here)',
+    tAdded:'Added to cart ✓', tExists:'Already in cart', tErrFields:'Please enter your name and email',
+    langBtn:'عربي', products:'resources', pri:'Primary', mid:'Middle', hi:'High School',
+  }
+};
+
+function i(k){ return I18N[lang][k] || k; }
+function pn(p){ return lang==='en' && p.name_en ? p.name_en : p.name_ar; }
+function pd(p){ return lang==='en' && p.desc_en ? p.desc_en : p.desc_ar; }
+function grLbl(g){ return g==='KG'?(lang==='ar'?'روضة':'KG'):(lang==='ar'?`الصف ${g}`:`Grade ${g}`); }
+function grLv(g){ return PRI.includes(g)?'pri':MID.includes(g)?'mid':'hi'; }
+function grColor(g){ const l=grLv(g); return l==='pri'?{c:'var(--pc)',b:'var(--pb)'}:l==='mid'?{c:'var(--mc)',b:'var(--mb)'}:{c:'var(--hc)',b:'var(--hb)'}; }
+
+function tyBadge(t){ const f=FT[t]; return `<span class="tg" style="background:${f.b};color:${f.c};border:1px solid ${f.c}33">${f.l}</span>`; }
+function grBadge(g){ const lc=grColor(g); return `<span class="tg" style="background:${lc.b};color:${lc.c};border:1px solid ${lc.c}33">${grLbl(g)}</span>`; }
+
+// ---- Init ----
+async function init(){
+  try {
+    const { data, error } = await supabase
+      .from('products').select('*')
+      .order('created_at',{ascending:false});
+    if(!error) allProducts = data || [];
+    else console.error('Supabase error:', error.message);
+  } catch(e) {
+    console.error('Connection error:', e);
+  }
+  // إخفاء شاشة التحميل دائماً بغض النظر عن النتيجة
+  const loading = document.getElementById('loading');
+  loading.classList.add('hidden');
+  setTimeout(()=>{ loading.style.display='none'; }, 500);
+  renderProducts();
+}
+
+// ---- Language Toggle ----
+function toggleLang(){
+  lang = lang==='ar'?'en':'ar';
+  document.documentElement.lang = lang;
+  document.documentElement.dir  = lang==='ar'?'rtl':'ltr';
+  applyLang();
+  renderProducts();
+  renderCart();
+}
+function applyLang(){
+  document.getElementById('nav-tagline').textContent  = i('tagline');
+  document.getElementById('hero-badge').textContent   = i('badge');
+  document.getElementById('hero-title').innerHTML     = i('h1');
+  document.getElementById('hero-desc').textContent    = i('desc');
+  document.getElementById('hc1').textContent = i('hc1');
+  document.getElementById('hc2').textContent = i('hc2');
+  document.getElementById('hc3').textContent = i('hc3');
+  document.getElementById('hc4').textContent = i('hc4');
+  document.getElementById('ft1').textContent = i('ft1'); document.getElementById('fs1').textContent = i('fs1');
+  document.getElementById('ft2').textContent = i('ft2'); document.getElementById('fs2').textContent = i('fs2');
+  document.getElementById('ft3').textContent = i('ft3'); document.getElementById('fs3').textContent = i('fs3');
+  document.getElementById('ft4').textContent = i('ft4'); document.getElementById('fs4').textContent = i('fs4');
+  document.getElementById('stat1-l').textContent = i('s1v');
+  document.getElementById('stat2-l').textContent = i('s2v');
+  document.getElementById('stat3-l').textContent = i('s3v');
+  document.getElementById('stat4-l').textContent = i('s4v');
+  document.getElementById('nav-admin').textContent   = i('admin');
+  document.getElementById('nav-cart-label').textContent = i('cartL');
+  document.getElementById('section-title').textContent  = i('secTitle');
+  document.getElementById('search-input').placeholder   = i('srPh');
+  document.getElementById('lang-btn').textContent  = i('langBtn');
+  document.getElementById('tf-all').textContent  = i('fAll');
+  document.getElementById('tf-pdf').textContent  = i('fPDF');
+  document.getElementById('tf-word').textContent = i('fWD');
+  document.getElementById('tf-ppt').textContent  = i('fPPT');
+  document.getElementById('tf-zip').textContent  = i('fZIP');
+  document.getElementById('gf-all').textContent  = i('gAll');
+  document.getElementById('gf-pri').textContent  = i('gPri');
+  document.getElementById('gf-mid').textContent  = i('gMid');
+  document.getElementById('gf-hi').textContent   = i('gHi');
+  document.getElementById('cart-title').textContent = i('crtTitle');
+  document.getElementById('checkout-title').textContent = i('chkTitle');
+  document.getElementById('checkout-btn').textContent   = i('ckoBtn');
+  document.getElementById('proceed-to-pay').textContent = i('payBtn');
+  if(document.getElementById('buyer-name'))  document.getElementById('buyer-name').placeholder  = i('namePh');
+  if(document.getElementById('buyer-email')) document.getElementById('buyer-email').placeholder = i('emailPh');
+}
+
+// ---- Filters ----
+function setTypeFilter(t){
+  typeFilter = t;
+  document.querySelectorAll('[data-type]').forEach(b => b.classList.toggle('fa', b.dataset.type===t));
+  filterProducts();
+}
+function setGradeFilter(g){
+  gradeFilter = g;
+  ['all','pri','mid','hi'].forEach(v => {
+    const el = document.getElementById('gf-'+v);
+    el.className = 'gfb' + (v===g ? ' ga-'+v : '');
+  });
+  filterProducts();
+}
+function filterProducts(){
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const filtered = allProducts.filter(p => {
+    const matchQ = !q || pn(p).toLowerCase().includes(q) || pd(p).toLowerCase().includes(q) || grLbl(p.grade).toLowerCase().includes(q);
+    const matchT = typeFilter==='all' || p.type===typeFilter;
+    const matchG = gradeFilter==='all' ||
+      (gradeFilter==='pri' && PRI.includes(p.grade)) ||
+      (gradeFilter==='mid' && MID.includes(p.grade)) ||
+      (gradeFilter==='hi'  && !PRI.includes(p.grade) && !MID.includes(p.grade));
+    return matchQ && matchT && matchG;
+  });
+  renderGrid(filtered);
+}
+
+// ---- Render ----
+function renderProducts(){ filterProducts(); }
+function renderGrid(prods){
+  const grid = document.getElementById('products-grid');
+  document.getElementById('product-count').textContent = prods.length + ' ' + i('products');
+  if(!prods.length){
+    grid.innerHTML = `<div class="nop" style="grid-column:1/-1"><div style="font-size:36px;margin-bottom:12px;opacity:.35">🔍</div><p style="font-size:15px">لا توجد نتائج مطابقة</p></div>`;
+    return;
+  }
+  grid.innerHTML = prods.map(p => {
+    const ft = FT[p.type] || FT.pdf;
+    const inCart = cart.some(c => c.id===p.id);
+    return `<div class="card">
+      <div class="ch" style="background:${ft.b}">
+        <div class="ci-ico" style="background:${ft.c};color:#fff">${ft.e}</div>
+        ${p.featured?`<span class="fbdg">${i('feat')}</span>`:''}
+      </div>
+      <div class="cb">
+        <div class="ctgs">${grBadge(p.grade)}${tyBadge(p.type)}</div>
+        <div class="ct">${pn(p)}</div>
+        <div class="cd">${(pd(p)||'').slice(0,65)}...</div>
+        <div class="cm">⭐ ${p.rating||5.0} &nbsp;•&nbsp; ${(p.downloads||0).toLocaleString()} ${i('dls')}</div>
+        <div class="cf">
+          <span class="pr">${p.price} <span class="pu">${i('sar')}</span></span>
+          <button class="ab ${inCart?'ab-gn':'ab-dk'}" onclick="addToCart('${p.id}')">
+            ${inCart?i('inC'):'🛒 '+i('addC')}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ---- Cart ----
+function addToCart(id){
+  const p = allProducts.find(x => x.id===id);
+  if(!p) return;
+  if(cart.some(c => c.id===id)){ showToast(i('tExists'),'info'); return; }
+  cart.push(p);
+  updateCartBadge();
+  renderCart();
+  showToast(i('tAdded'));
+}
+function removeFromCart(id){
+  cart = cart.filter(c => c.id!==id);
+  updateCartBadge();
+  renderCart();
+  renderGrid(allProducts.filter(p => {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    return !q || pn(p).toLowerCase().includes(q);
+  }));
+  filterProducts();
+}
+function updateCartBadge(){
+  const badge = document.getElementById('cart-badge');
+  badge.style.display = cart.length ? 'flex' : 'none';
+  badge.textContent = cart.length;
+}
+function renderCart(){
+  const items = document.getElementById('cart-items');
+  const footer = document.getElementById('cart-footer');
+  document.getElementById('cart-title').textContent = i('crtTitle');
+  document.getElementById('checkout-btn').textContent = i('ckoBtn');
+  if(!cart.length){
+    items.innerHTML = `<div class="ec"><div style="font-size:36px;margin-bottom:10px;opacity:.3">🛒</div><p>${i('empty')}</p></div>`;
+    footer.style.display = 'none';
+    return;
+  }
+  items.innerHTML = cart.map(p => `
+    <div class="di">
+      <div style="flex:1;min-width:0">
+        <div class="dn">${pn(p)}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">${grBadge(p.grade)}${tyBadge(p.type)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+        <span class="dp2">${p.price} ${i('sar')}</span>
+        <button onclick="removeFromCart('${p.id}')" style="width:22px;height:22px;background:#FEE2E2;color:var(--rd);border:none;border-radius:5px;cursor:pointer;font-size:11px">✕</button>
+      </div>
+    </div>`).join('');
+  const total = cart.reduce((s,p)=>s+Number(p.price),0);
+  document.getElementById('cart-total').textContent = total + ' ' + i('sar');
+  document.getElementById('cart-total-label').textContent = i('totalL');
+  footer.style.display = 'block';
+}
+function openCart(){ document.getElementById('overlay').style.display='block'; document.getElementById('cart-drawer').style.display='flex'; renderCart(); }
+function closeCart(){ document.getElementById('overlay').style.display='none'; document.getElementById('cart-drawer').style.display='none'; }
+
+// ---- Checkout ----
+function openCheckout(){
+  closeCart();
+  document.getElementById('checkout-modal').style.display='flex';
+  document.getElementById('moyasar-container').style.display='none';
+  document.getElementById('buyer-form').style.display='block';
+  document.getElementById('proceed-to-pay').style.display='block';
+  document.getElementById('checkout-title').textContent = i('chkTitle');
+  document.getElementById('buyer-name').placeholder  = i('namePh');
+  document.getElementById('buyer-email').placeholder = i('emailPh');
+  document.getElementById('proceed-to-pay').textContent = i('payBtn');
+  const total = cart.reduce((s,p)=>s+Number(p.price),0);
+  document.getElementById('order-summary').innerHTML = `
+    ${cart.map(p=>`<div class="os-item"><span>${pn(p)}</span><span>${p.price} ${i('sar')}</span></div>`).join('')}
+    <div class="os-total"><span>${i('totalL')}</span><span>${total} ${i('sar')}</span></div>`;
+}
+function closeCheckout(){ document.getElementById('checkout-modal').style.display='none'; }
+
+async function proceedToPayment(){
+  const name  = document.getElementById('buyer-name').value.trim();
+  const email = document.getElementById('buyer-email').value.trim();
+  if(!name || !email){ showToast(i('tErrFields'),'err'); return; }
+
+  const total = cart.reduce((s,p)=>s+Number(p.price),0);
+  // 1️⃣ حفظ الطلب في Supabase أولاً
+  const { data: order, error } = await supabase.from('orders').insert({
+    buyer_email: email,
+    buyer_name:  name,
+    items: cart.map(p=>({product_id:p.id, name_ar:p.name_ar, price:p.price, file_path:p.file_path})),
+    total: total,
+    status: 'pending'
+  }).select().single();
+
+  if(error){ showToast('حدث خطأ، حاول مجدداً','err'); return; }
+
+  // 2️⃣ إخفاء الفورم وعرض نموذج ميسر
+  document.getElementById('buyer-form').style.display = 'none';
+  document.getElementById('proceed-to-pay').style.display = 'none';
+  document.getElementById('moyasar-container').style.display = 'block';
+
+  // 3️⃣ تهيئة ميسر (المفتاح العلني آمن في المتصفح)
+  Moyasar.init({
+    element: '.mysr-form',
+    amount: Math.round(total * 100), // بالهللة
+    currency: 'SAR',
+    description: `EduSpark — ${cart.length} مادة تعليمية`,
+    publishable_api_key: MOYASAR_PUB,
+    callback_url: window.location.origin + '/payment-success.html?order_id=' + order.id,
+    methods: ['creditcard', 'stcpay', 'applepay'],
+    apple_pay: { country: 'SA', label: 'EduSpark', validate_merchant_url: 'https://api.moyasar.com/v1/applepay/initiate' },
+    on_completed: async (payment) => {
+      // التحقق الآمن عبر Edge Function
+      const res = await fetch(EDGE_FN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, paymentId: payment.id })
+      });
+      const result = await res.json();
+      if(result.success){
+        cart = [];
+        updateCartBadge();
+        closeCheckout();
+        window.location.href = '/payment-success.html?order_id=' + order.id;
+      }
+    }
+  });
+}
+
+// ---- Toast ----
+function showToast(msg, type='ok'){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = type==='err'?'var(--rd)':type==='info'?'var(--wd-c)':'var(--gr)';
+  el.style.display = 'flex';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>el.style.display='none', 2800);
+}
+
+// ---- Boot ----
+init();
+</script>
+</body>
+</html>

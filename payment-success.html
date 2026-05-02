@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduSpark — تم الدفع بنجاح</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--nv:#151C32;--gld:#F5A523;--gr:#059669;--rd:#DC2626;--g1:#F4F2ED;--g2:#E8E5DE;--g3:#B8B3A8}
+body{font-family:'Tajawal',sans-serif;background:var(--g1);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.card{background:#fff;border-radius:24px;padding:48px 40px;max-width:520px;width:100%;text-align:center;border:1px solid var(--g2);box-shadow:0 8px 40px rgba(0,0,0,.08)}
+.ico{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 24px}
+.ico-ok{background:#ECFDF5}
+.ico-fail{background:#FEF2F2}
+.ico-load{background:var(--g1);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+h1{font-family:'Poppins',sans-serif;font-weight:800;font-size:28px;color:var(--nv);margin-bottom:10px}
+.sub{color:var(--g3);font-size:14px;line-height:1.8;margin-bottom:28px}
+.downloads{background:var(--g1);border-radius:14px;padding:20px;margin-bottom:24px;text-align:right}
+.downloads h3{font-weight:800;color:var(--nv);font-size:14px;margin-bottom:14px}
+.dl-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--g2)}
+.dl-item:last-child{border-bottom:none}
+.dl-name{font-weight:700;font-size:13px;color:var(--nv)}
+.dl-btn{display:flex;align-items:center;gap:5px;padding:7px 14px;background:var(--nv);color:#fff;border:none;border-radius:9px;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:700;font-size:12px;text-decoration:none;transition:background .15s}
+.dl-btn:hover{background:#0d1220}
+.note{font-size:11px;color:var(--g3);margin-bottom:24px;line-height:1.7}
+.home-btn{display:inline-flex;align-items:center;gap:6px;padding:12px 28px;background:var(--gld);color:#fff;border:none;border-radius:12px;font-family:'Tajawal',sans-serif;font-weight:800;font-size:14px;cursor:pointer;text-decoration:none;transition:background .15s}
+.home-btn:hover{background:#E8961A}
+.logo{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px}
+.logo-ico{width:36px;height:36px;background:var(--gld);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo-txt{font-family:'Poppins',sans-serif;font-weight:800;font-size:20px;color:var(--nv)}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-ico">⚡</div>
+    <span class="logo-txt">EduSpark</span>
+  </div>
+  <div id="content">
+    <div class="ico ico-load">⏳</div>
+    <h1>جاري التحقق...</h1>
+    <p class="sub">يرجى الانتظار لحظة بينما نتحقق من دفعتك</p>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL  = 'https://YOUR_PROJECT.supabase.co';
+const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY';
+const EDGE_FN_URL   = `${SUPABASE_URL}/functions/v1/verify-payment`;
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+async function verifyPayment(){
+  const params = new URLSearchParams(window.location.search);
+  const orderId   = params.get('order_id');
+  const paymentId = params.get('id'); // ميسر يرسل id في الرابط
+
+  if(!orderId || !paymentId){
+    showFail('رابط غير صالح');
+    return;
+  }
+
+  try {
+    // استدعاء Edge Function للتحقق الآمن
+    const res = await fetch(EDGE_FN_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({orderId, paymentId})
+    });
+    const result = await res.json();
+
+    if(result.success){
+      showSuccess(result.downloadUrls || {});
+    } else {
+      showFail('لم يكتمل الدفع. يرجى التواصل معنا إذا استمرت المشكلة.');
+    }
+  } catch(err) {
+    showFail('حدث خطأ في الاتصال. يرجى التواصل معنا.');
+  }
+}
+
+async function showSuccess(downloadUrls){
+  // جلب بيانات الطلب لعرض أسماء الملفات
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('order_id');
+  const {data:order} = await supabase.from('orders').select('*').eq('id',orderId).single();
+
+  let downloadsHtml = '';
+  if(order && Object.keys(downloadUrls).length > 0){
+    const items = order.items || [];
+    downloadsHtml = `
+    <div class="downloads">
+      <h3>📥 المواد الخاصة بك (صالحة 24 ساعة)</h3>
+      ${items.map(item => {
+        const url = downloadUrls[item.product_id];
+        return url ? `
+        <div class="dl-item">
+          <span class="dl-name">${item.name_ar}</span>
+          <a class="dl-btn" href="${url}" target="_blank" download>⬇️ تحميل</a>
+        </div>` : '';
+      }).join('')}
+    </div>
+    <p class="note">📧 تم إرسال روابط التحميل أيضاً إلى بريدك الإلكتروني | الروابط صالحة لمدة 24 ساعة</p>`;
+  }
+
+  document.getElementById('content').innerHTML = `
+    <div class="ico ico-ok">✅</div>
+    <h1>تم الدفع بنجاح!</h1>
+    <p class="sub">شكراً لثقتك بـ EduSpark. يمكنك تحميل موادك التعليمية الآن.</p>
+    ${downloadsHtml}
+    <a class="home-btn" href="index.html">🏠 العودة للمتجر</a>`;
+}
+
+function showFail(msg){
+  document.getElementById('content').innerHTML = `
+    <div class="ico ico-fail">❌</div>
+    <h1>لم يكتمل الدفع</h1>
+    <p class="sub">${msg}</p>
+    <a class="home-btn" href="index.html" style="background:var(--nv)">العودة للمتجر</a>`;
+}
+
+verifyPayment();
+</script>
+</body>
+</html>

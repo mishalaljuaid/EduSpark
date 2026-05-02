@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduSpark — لوحة التحكم</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --nv:#151C32;--nv2:#1E2747;--gld:#F5A523;--gld2:#E8961A;
+  --cr:#F7F5F0;--g1:#F4F2ED;--g2:#E8E5DE;--g3:#B8B3A8;--g4:#6E6A62;
+  --pdf-c:#DC2626;--pdf-b:#FEF2F2;--wd-c:#1D4ED8;--wd-b:#EFF6FF;
+  --pt-c:#EA580C;--pt-b:#FFF7ED;--zp-c:#7C3AED;--zp-b:#F5F3FF;
+  --rd:#DC2626;--gr:#059669;--pc:#0D9488;--pb:#F0FDFA;
+  --mc:#7C3AED;--mb:#F5F3FF;--hc:#1D4ED8;--hb:#EFF6FF;
+}
+body{font-family:'Tajawal',sans-serif;background:var(--cr);min-height:100vh}
+/* ---- LOGIN SCREEN ---- */
+#login-screen{position:fixed;inset:0;background:var(--nv);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-card{background:#fff;border-radius:20px;padding:36px;width:360px;text-align:center}
+.login-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px}
+.login-logo-ico{width:40px;height:40px;background:var(--gld);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.login-logo-txt{font-family:'Poppins',sans-serif;font-weight:800;font-size:22px;color:var(--nv)}
+.login-sub{color:var(--g3);font-size:12px;margin-bottom:28px}
+.login-input{width:100%;padding:12px 14px;border-radius:10px;border:2px solid var(--g2);font-family:'Tajawal',sans-serif;font-size:14px;outline:none;margin-bottom:12px;transition:border-color .2s}
+.login-input:focus{border-color:var(--gld)}
+.login-btn{width:100%;padding:13px;background:var(--nv);color:#fff;border:none;border-radius:11px;font-family:'Tajawal',sans-serif;font-weight:800;font-size:15px;cursor:pointer;transition:background .18s;margin-top:6px}
+.login-btn:hover{background:#0d1220}
+.login-err{color:var(--rd);font-size:12px;margin-top:8px;min-height:18px}
+/* ---- ADMIN LAYOUT ---- */
+#admin-screen{display:none;min-height:100vh;flex-direction:row}
+.sb{width:235px;background:var(--nv);padding:20px 14px;display:flex;flex-direction:column;min-height:100vh;position:fixed;top:0;right:0;bottom:0}
+[dir=ltr] .sb{right:auto;left:0}
+.sb-logo{display:flex;align-items:center;gap:9px;padding:0 8px;margin-bottom:30px}
+.sb-logo-ico{width:34px;height:34px;background:var(--gld);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.sb-logo-txt{font-family:'Poppins',sans-serif;font-weight:800;font-size:18px;color:#fff}
+.sb-sep{font-size:9px;font-weight:700;color:rgba(255,255,255,.28);letter-spacing:.8px;padding:0 8px;margin-bottom:7px;text-transform:uppercase}
+.sbi{width:100%;padding:10px 14px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,.55);cursor:pointer;font-weight:700;font-size:13px;font-family:'Tajawal',sans-serif;display:flex;align-items:center;gap:9px;margin-bottom:3px;text-align:right;transition:all .18s}
+.sbi:hover{color:rgba(255,255,255,.88);background:rgba(255,255,255,.07)}
+.sbi.active{background:var(--gld);color:#fff}
+.sb-bottom{margin-top:auto}
+.sb-logout{width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:transparent;color:rgba(255,255,255,.5);cursor:pointer;font-weight:700;font-size:13px;font-family:'Tajawal',sans-serif;display:flex;align-items:center;gap:9px;transition:all .18s}
+.sb-logout:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.8)}
+.main{margin-right:235px;padding:28px;flex:1;overflow-y:auto}
+[dir=ltr] .main{margin-right:0;margin-left:235px}
+.page{display:none}
+.page.active{display:block}
+.page-title{font-family:'Poppins',sans-serif;font-weight:800;font-size:22px;color:var(--nv);margin-bottom:2px}
+.page-sub{color:var(--g3);font-size:12px;margin-bottom:24px}
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat-card{background:#fff;border-radius:14px;padding:18px;border:1px solid var(--g2)}
+.stat-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.stat-card-label{color:var(--g3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.stat-card-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.stat-val{font-family:'Poppins',sans-serif;font-weight:800;font-size:24px;color:var(--nv)}
+/* TABLE */
+.table-card{background:#fff;border-radius:14px;border:1px solid var(--g2);overflow:hidden;margin-bottom:20px}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:2px solid var(--g2)}
+.table-title{font-weight:800;color:var(--nv);font-size:14px}
+.dtb{width:100%;border-collapse:collapse}
+.dtb th{text-align:right;padding:10px 16px;color:var(--g3);font-size:10px;font-weight:800;background:var(--cr);border-bottom:2px solid var(--g2);text-transform:uppercase}
+.dtb td{padding:12px 16px;border-bottom:1px solid var(--g1);font-size:12px;color:var(--nv);vertical-align:middle}
+.dtb tr:last-child td{border-bottom:none}
+.dtb tr:hover td{background:#FAFAF7}
+.price-cell{font-family:'Poppins',sans-serif;font-weight:800;color:var(--gld)}
+.status-paid{background:#ECFDF5;color:var(--gr);font-size:10px;font-weight:800;padding:3px 8px;border-radius:50px}
+.status-pending{background:#FFFBEB;color:#B45309;font-size:10px;font-weight:800;padding:3px 8px;border-radius:50px}
+.status-failed{background:#FEF2F2;color:var(--rd);font-size:10px;font-weight:800;padding:3px 8px;border-radius:50px}
+.tg{font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px}
+/* ACTIONS */
+.acb{display:flex;align-items:center;gap:3px;padding:5px 10px;border:none;border-radius:7px;cursor:pointer;font-weight:700;font-size:11px;font-family:'Tajawal',sans-serif}
+.add-btn{display:flex;align-items:center;gap:7px;padding:10px 18px;background:var(--gld);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:800;font-size:13px}
+.add-btn:hover{background:var(--gld2)}
+.back-btn{width:32px;height:32px;background:#fff;border:1px solid var(--g2);border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+/* FORM */
+.form-card{background:#fff;border-radius:16px;padding:28px;border:1px solid var(--g2);max-width:620px}
+.fg{margin-bottom:18px}
+.fl{display:block;font-weight:800;color:var(--nv);margin-bottom:6px;font-size:12px}
+.fi{width:100%;padding:11px 13px;border-radius:10px;border:2px solid var(--g2);font-size:13px;font-family:'Tajawal',sans-serif;outline:none;transition:border-color .2s;background:#fff}
+.fi:focus{border-color:var(--gld)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fta{resize:vertical;min-height:72px}
+.fsel{cursor:pointer}
+.type-sel{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.type-opt{padding:12px 8px;border-radius:10px;border:2px solid var(--g2);background:#fff;cursor:pointer;text-align:center;transition:all .2s}
+.type-opt-ico{font-size:18px;margin-bottom:4px}
+.type-opt-lbl{font-weight:700;font-size:10px;color:var(--g4)}
+.check-row{display:flex;align-items:center;gap:9px;cursor:pointer}
+.ck{width:20px;height:20px;border-radius:6px;border:2px solid var(--g2);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s}
+.ck.ckd{background:var(--gld);border-color:var(--gld)}
+.sub-btn{width:100%;padding:13px;background:var(--nv);color:#fff;border:none;border-radius:11px;font-family:'Tajawal',sans-serif;font-weight:800;font-size:15px;cursor:pointer;margin-top:22px;transition:background .18s}
+.sub-btn:hover{background:#0d1220}
+/* TOAST */
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:11px;color:#fff;font-weight:700;font-size:13px;z-index:9999;white-space:nowrap;pointer-events:none;display:none}
+/* DIST BOXES */
+.dist-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.dist-box{border-radius:10px;padding:14px;text-align:center}
+.dist-n{font-family:'Poppins',sans-serif;font-weight:800;font-size:22px;margin-bottom:3px}
+.dist-l{font-weight:700;font-size:11px}
+.grade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-ico">⚡</div>
+      <span class="login-logo-txt">EduSpark</span>
+    </div>
+    <div class="login-sub">لوحة تحكم المدير — تسجيل الدخول</div>
+    <input class="login-input" type="email"    id="login-email"    placeholder="البريد الإلكتروني">
+    <input class="login-input" type="password" id="login-password" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()">تسجيل الدخول</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin-screen" style="display:none;flex-direction:row">
+  <!-- SIDEBAR -->
+  <div class="sb">
+    <div class="sb-logo">
+      <div class="sb-logo-ico">⚡</div>
+      <span class="sb-logo-txt">EduSpark</span>
+    </div>
+    <div class="sb-sep">القائمة</div>
+    <button class="sbi active" onclick="showPage('dashboard')" id="nav-dashboard">📊 لوحة التحكم</button>
+    <button class="sbi" onclick="showPage('products')"  id="nav-products">📚 المواد التعليمية</button>
+    <button class="sbi" onclick="showPage('add')"       id="nav-add">➕ إضافة مادة</button>
+    <button class="sbi" onclick="showPage('orders')"    id="nav-orders">🧾 الطلبات</button>
+    <div class="sb-bottom">
+      <button class="sbi" onclick="window.open('index.html','_blank')" style="margin-bottom:8px">👁️ عرض المتجر</button>
+      <button class="sb-logout" onclick="logout()">🚪 تسجيل الخروج</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">لوحة التحكم</div>
+      <div class="page-sub" id="dash-welcome">مرحباً! ملخص نشاط متجر EduSpark</div>
+      <div class="stat-grid" id="stat-grid"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div class="table-card" style="overflow:visible">
+          <div class="table-header"><span class="table-title">توزيع المواد حسب النوع</span></div>
+          <div style="padding:16px"><div class="dist-grid" id="type-dist"></div></div>
+        </div>
+        <div class="table-card" style="overflow:visible">
+          <div class="table-header"><span class="table-title">توزيع المواد حسب المرحلة</span></div>
+          <div style="padding:16px"><div class="grade-grid" id="grade-dist"></div></div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <span class="table-title">أحدث الطلبات</span>
+          <button onclick="showPage('orders')" style="color:var(--gld);font-weight:700;font-size:12px;background:none;border:none;cursor:pointer;font-family:'Tajawal',sans-serif">عرض الكل ←</button>
+        </div>
+        <table class="dtb"><thead><tr><th>المشتري</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+        <tbody id="recent-orders"></tbody></table>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="page" id="page-products">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px">
+        <div><div class="page-title">المواد التعليمية</div><div class="page-sub" id="prods-sub"></div></div>
+        <button class="add-btn" onclick="showPage('add')">＋ إضافة مادة</button>
+      </div>
+      <div class="table-card">
+        <table class="dtb"><thead><tr><th>المادة</th><th>الصف</th><th>النوع</th><th>السعر</th><th>التنزيلات</th><th>الإجراءات</th></tr></thead>
+        <tbody id="products-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ADD / EDIT -->
+    <div class="page" id="page-add">
+      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:22px">
+        <button class="back-btn" onclick="showPage('products')">→</button>
+        <div><div class="page-title" id="form-title">إضافة مادة تعليمية</div><div class="page-sub" id="form-sub">أضف مادة جديدة للمتجر</div></div>
+      </div>
+      <div class="form-card">
+        <input type="hidden" id="edit-id">
+        <div class="frow">
+          <div class="fg"><label class="fl">اسم المادة (عربي) *</label><input class="fi" id="f-name-ar" placeholder="الاسم بالعربي..." dir="rtl"></div>
+          <div class="fg"><label class="fl">اسم المادة (إنجليزي)</label><input class="fi" id="f-name-en" placeholder="English name..." dir="ltr" style="font-family:'Poppins',sans-serif"></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label class="fl">الوصف (عربي)</label><textarea class="fi fta" id="f-desc-ar" placeholder="الوصف بالعربي..." dir="rtl"></textarea></div>
+          <div class="fg"><label class="fl">الوصف (إنجليزي)</label><textarea class="fi fta" id="f-desc-en" placeholder="English description..." dir="ltr" style="font-family:'Poppins',sans-serif"></textarea></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label class="fl">السعر (ر.س) *</label><input class="fi" type="number" id="f-price" placeholder="0" min="1" dir="ltr"></div>
+          <div class="fg"><label class="fl">الصف الدراسي *</label>
+            <select class="fi fsel" id="f-grade" dir="ltr" style="font-family:'Poppins',sans-serif">
+              <option value="KG">KG / روضة</option>
+              <option value="1">Grade 1 / الصف 1</option><option value="2">Grade 2 / الصف 2</option>
+              <option value="3">Grade 3 / الصف 3</option><option value="4">Grade 4 / الصف 4</option>
+              <option value="5">Grade 5 / الصف 5</option><option value="6">Grade 6 / الصف 6</option>
+              <option value="7">Grade 7 / الصف 7</option><option value="8">Grade 8 / الصف 8</option>
+              <option value="9">Grade 9 / الصف 9</option><option value="10">Grade 10 / الصف 10</option>
+              <option value="11">Grade 11 / الصف 11</option><option value="12">Grade 12 / الصف 12</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">نوع الملف *</label>
+          <div class="type-sel" id="type-sel">
+            <div class="type-opt" data-t="pdf" onclick="selType('pdf')"><div class="type-opt-ico">📄</div><div class="type-opt-lbl">PDF</div></div>
+            <div class="type-opt" data-t="word" onclick="selType('word')"><div class="type-opt-ico">📝</div><div class="type-opt-lbl">Word</div></div>
+            <div class="type-opt" data-t="ppt" onclick="selType('ppt')"><div class="type-opt-ico">📊</div><div class="type-opt-lbl">PowerPoint</div></div>
+            <div class="type-opt" data-t="zip" onclick="selType('zip')"><div class="type-opt-ico">🗜️</div><div class="type-opt-lbl">ZIP Bundle</div></div>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">رفع الملف</label>
+          <input class="fi" type="file" id="f-file" accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,.rar" style="padding:8px">
+          <div id="file-status" style="font-size:11px;color:var(--g3);margin-top:4px"></div>
+        </div>
+        <div class="fg"><div class="check-row" onclick="toggleFeatured()">
+          <div class="ck" id="feat-ck"></div>
+          <span style="font-weight:700;color:var(--nv);font-size:13px">مادة مميزة (تظهر بشارة ★ مميز)</span>
+        </div></div>
+        <button class="sub-btn" id="submit-btn" onclick="submitProduct()">💾 إضافة المادة</button>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="page" id="page-orders">
+      <div class="page-title">الطلبات</div>
+      <div class="page-sub" id="orders-sub">جميع الطلبات المسجلة</div>
+      <div class="table-card">
+        <table class="dtb"><thead><tr><th>رقم الطلب</th><th>المشتري</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th><th>معرّف ميسر</th></tr></thead>
+        <tbody id="orders-tbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// ⚠️ ضع مفاتيحك هنا
+// ============================================================
+const SUPABASE_URL  = 'https://YOUR_PROJECT.supabase.co';
+const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY';
+// ============================================================
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const FT = {pdf:{l:'PDF',c:'var(--pdf-c)',b:'var(--pdf-b)'},word:{l:'Word',c:'var(--wd-c)',b:'var(--wd-b)'},ppt:{l:'PPT',c:'var(--pt-c)',b:'var(--pt-b)'},zip:{l:'ZIP',c:'var(--zp-c)',b:'var(--zp-b)'}};
+const PRI=['KG','1','2','3','4','5','6'], MID=['7','8','9'];
+let allProducts=[], allOrders=[], selTypeVal='pdf', isFeatured=false, editId=null;
+
+function grLbl(g){return g==='KG'?'روضة':`الصف ${g}`;}
+function grLv(g){return PRI.includes(g)?'pri':MID.includes(g)?'mid':'hi';}
+function grCol(g){const l=grLv(g);return l==='pri'?{c:'var(--pc)',b:'var(--pb)'}:l==='mid'?{c:'var(--mc)',b:'var(--mb)'}:{c:'var(--hc)',b:'var(--hb)'};}
+function tyBadge(t){const f=FT[t]||FT.pdf;return `<span class="tg" style="background:${f.b};color:${f.c};border:1px solid ${f.c}33">${f.l}</span>`;}
+function grBadge(g){const lc=grCol(g);return `<span class="tg" style="background:${lc.b};color:${lc.c};border:1px solid ${lc.c}33">${grLbl(g)}</span>`;}
+
+// ---- Auth ----
+async function login(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value;
+  document.getElementById('login-err').textContent = '';
+  const {error} = await supabase.auth.signInWithPassword({email, password:pass});
+  if(error){ document.getElementById('login-err').textContent = 'بيانات الدخول غير صحيحة'; return; }
+  showAdmin();
+}
+async function logout(){
+  await supabase.auth.signOut();
+  document.getElementById('admin-screen').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+}
+async function checkAuth(){
+  const {data:{session}} = await supabase.auth.getSession();
+  if(session){ showAdmin(); }
+  else { document.getElementById('login-screen').style.display='flex'; }
+}
+function showAdmin(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('admin-screen').style.display='flex';
+  loadData();
+}
+
+// ---- Data ----
+async function loadData(){
+  const [{data:prods},{data:orders}] = await Promise.all([
+    supabase.from('products').select('*').order('created_at',{ascending:false}),
+    supabase.from('orders').select('*').order('created_at',{ascending:false})
+  ]);
+  allProducts = prods||[];
+  allOrders   = orders||[];
+  renderDashboard();
+  renderProductsTable();
+  renderOrdersTable();
+}
+
+// ---- Dashboard ----
+function renderDashboard(){
+  const totalRev = allOrders.filter(o=>o.status==='paid').reduce((s,o)=>s+Number(o.total),0);
+  const stats = [
+    {l:'إجمالي المواد', v:allProducts.length, ico:'📚', bg:'#EFF6FF'},
+    {l:'الطلبات المدفوعة', v:allOrders.filter(o=>o.status==='paid').length, ico:'✅', bg:'#ECFDF5'},
+    {l:'الإيرادات (ر.س)', v:totalRev.toLocaleString(), ico:'💰', bg:'#FFFBEB'},
+    {l:'إجمالي التنزيلات', v:allProducts.reduce((s,p)=>s+(p.downloads||0),0).toLocaleString(), ico:'⬇️', bg:'#F0FDFA'},
+  ];
+  document.getElementById('stat-grid').innerHTML = stats.map(s=>`
+    <div class="stat-card">
+      <div class="stat-card-top"><span class="stat-card-label">${s.l}</span><div class="stat-card-icon" style="background:${s.bg}">${s.ico}</div></div>
+      <div class="stat-val">${s.v}</div>
+    </div>`).join('');
+  const types = Object.entries(FT).map(([k,v])=>({k,v,cnt:allProducts.filter(p=>p.type===k).length}));
+  document.getElementById('type-dist').innerHTML = types.map(({k,v,cnt})=>`
+    <div class="dist-box" style="background:${v.b}"><div class="dist-n" style="color:${v.c}">${cnt}</div><div class="dist-l" style="color:${v.c}">${v.l}</div></div>`).join('');
+  const gd=[{l:'ابتدائي',cnt:allProducts.filter(p=>PRI.includes(p.grade)).length,c:'var(--pc)',b:'var(--pb)'},
+            {l:'متوسط',  cnt:allProducts.filter(p=>MID.includes(p.grade)).length, c:'var(--mc)',b:'var(--mb)'},
+            {l:'ثانوي',  cnt:allProducts.filter(p=>!PRI.includes(p.grade)&&!MID.includes(p.grade)).length,c:'var(--hc)',b:'var(--hb)'}];
+  document.getElementById('grade-dist').innerHTML = gd.map(g=>`
+    <div class="dist-box" style="background:${g.b}"><div class="dist-n" style="color:${g.c}">${g.cnt}</div><div class="dist-l" style="color:${g.c}">${g.l}</div></div>`).join('');
+  const sMap={'paid':'status-paid','pending':'status-pending','failed':'status-failed'};
+  const sLbl={'paid':'مدفوع','pending':'في الانتظار','failed':'فشل'};
+  document.getElementById('recent-orders').innerHTML = allOrders.slice(0,5).map(o=>`
+    <tr><td style="font-weight:700">${o.buyer_email}</td><td class="price-cell">${o.total} ر.س</td>
+    <td><span class="${sMap[o.status]||'status-pending'}">${sLbl[o.status]||o.status}</span></td>
+    <td style="color:var(--g3)">${new Date(o.created_at).toLocaleDateString('ar-SA')}</td></tr>`).join('');
+}
+
+// ---- Products Table ----
+function renderProductsTable(){
+  document.getElementById('prods-sub').textContent = allProducts.length + ' مادة تعليمية في المتجر';
+  document.getElementById('products-tbody').innerHTML = allProducts.map(p=>`
+    <tr>
+      <td><div style="font-weight:700;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name_ar}</div>
+          <div style="color:var(--g3);font-size:10px">${(p.name_en||'').slice(0,30)}</div></td>
+      <td>${grBadge(p.grade)}</td>
+      <td>${tyBadge(p.type)}</td>
+      <td class="price-cell">${p.price} ر.س</td>
+      <td>${(p.downloads||0).toLocaleString()}</td>
+      <td><div style="display:flex;gap:6px">
+        <button class="acb" style="background:#EFF6FF;color:var(--wd-c)" onclick="editProduct('${p.id}')">✏️ تعديل</button>
+        <button class="acb" style="background:#FEF2F2;color:var(--rd)"  onclick="deleteProduct('${p.id}')">🗑️ حذف</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+// ---- Orders Table ----
+function renderOrdersTable(){
+  const sMap={'paid':'status-paid','pending':'status-pending','failed':'status-failed'};
+  const sLbl={'paid':'مدفوع','pending':'في الانتظار','failed':'فشل'};
+  document.getElementById('orders-sub').textContent = allOrders.length + ' طلب مسجل';
+  document.getElementById('orders-tbody').innerHTML = allOrders.map(o=>`
+    <tr>
+      <td style="font-size:10px;color:var(--g3);font-family:'Poppins',sans-serif">${o.id.slice(0,8)}...</td>
+      <td><div style="font-weight:700">${o.buyer_name||'—'}</div><div style="font-size:10px;color:var(--g3)">${o.buyer_email}</div></td>
+      <td class="price-cell">${o.total} ر.س</td>
+      <td><span class="${sMap[o.status]||'status-pending'}">${sLbl[o.status]||o.status}</span></td>
+      <td style="color:var(--g3);font-size:11px">${new Date(o.created_at).toLocaleDateString('ar-SA')}</td>
+      <td style="font-size:10px;color:var(--g3);font-family:'Poppins',sans-serif">${o.moyasar_payment_id?o.moyasar_payment_id.slice(0,12)+'...':'—'}</td>
+    </tr>`).join('');
+}
+
+// ---- Type Selector ----
+function selType(t){
+  selTypeVal=t;
+  const FTC={pdf:{c:'var(--pdf-c)',b:'var(--pdf-b)'},word:{c:'var(--wd-c)',b:'var(--wd-b)'},ppt:{c:'var(--pt-c)',b:'var(--pt-b)'},zip:{c:'var(--zp-c)',b:'var(--zp-b)'}};
+  document.querySelectorAll('.type-opt').forEach(el=>{
+    const isSelected = el.dataset.t===t;
+    const colors = FTC[el.dataset.t];
+    el.style.borderColor  = isSelected?colors.c:'var(--g2)';
+    el.style.background   = isSelected?colors.b:'#fff';
+    el.querySelector('.type-opt-lbl').style.color = isSelected?colors.c:'var(--g4)';
+  });
+}
+function toggleFeatured(){
+  isFeatured=!isFeatured;
+  const ck=document.getElementById('feat-ck');
+  ck.className='ck'+(isFeatured?' ckd':'');
+  ck.textContent=isFeatured?'✓':'';
+  if(isFeatured) ck.querySelector&&null; // handled by className
+  ck.innerHTML=isFeatured?'<span style="color:#fff;font-size:12px;font-weight:900">✓</span>':'';
+}
+
+// ---- Submit ----
+async function submitProduct(){
+  const nameAr = document.getElementById('f-name-ar').value.trim();
+  const nameEn = document.getElementById('f-name-en').value.trim();
+  const descAr = document.getElementById('f-desc-ar').value.trim();
+  const descEn = document.getElementById('f-desc-en').value.trim();
+  const price  = Number(document.getElementById('f-price').value);
+  const grade  = document.getElementById('f-grade').value;
+  const file   = document.getElementById('f-file').files[0];
+  if(!nameAr||!price){ showToast('يرجى ملء الحقول المطلوبة','err'); return; }
+
+  let filePath = null;
+  // رفع الملف إلى Supabase Storage
+  if(file){
+    document.getElementById('file-status').textContent = 'جاري رفع الملف...';
+    const ext = file.name.split('.').pop();
+    const path = `products/${Date.now()}_${nameAr.replace(/\s/g,'_')}.${ext}`;
+    const {error:upErr} = await supabase.storage.from('eduspark-files').upload(path, file);
+    if(upErr){ showToast('فشل رفع الملف: '+upErr.message,'err'); return; }
+    filePath = path;
+    document.getElementById('file-status').textContent = 'تم رفع الملف ✓';
+  }
+
+  const payload = {name_ar:nameAr, name_en:nameEn, desc_ar:descAr, desc_en:descEn, price, grade, type:selTypeVal, featured:isFeatured, ...(filePath&&{file_path:filePath})};
+  let error;
+  if(editId){
+    ({error} = await supabase.from('products').update(payload).eq('id',editId));
+  } else {
+    ({error} = await supabase.from('products').insert(payload));
+  }
+  if(error){ showToast('حدث خطأ: '+error.message,'err'); return; }
+  showToast(editId?'تم تحديث المادة ✓':'تمت الإضافة بنجاح ✓');
+  resetForm();
+  loadData();
+  showPage('products');
+}
+
+function editProduct(id){
+  const p = allProducts.find(x=>x.id===id);
+  if(!p) return;
+  editId=p.id;
+  document.getElementById('edit-id').value = p.id;
+  document.getElementById('f-name-ar').value = p.name_ar||'';
+  document.getElementById('f-name-en').value = p.name_en||'';
+  document.getElementById('f-desc-ar').value = p.desc_ar||'';
+  document.getElementById('f-desc-en').value = p.desc_en||'';
+  document.getElementById('f-price').value = p.price;
+  document.getElementById('f-grade').value = p.grade;
+  selType(p.type||'pdf');
+  isFeatured=p.featured||false;
+  document.getElementById('feat-ck').className='ck'+(isFeatured?' ckd':'');
+  document.getElementById('feat-ck').innerHTML=isFeatured?'<span style="color:#fff;font-size:12px;font-weight:900">✓</span>':'';
+  document.getElementById('form-title').textContent='تعديل المادة التعليمية';
+  document.getElementById('form-sub').textContent='قم بتحديث بيانات المادة';
+  document.getElementById('submit-btn').textContent='💾 حفظ التعديلات';
+  showPage('add');
+}
+
+async function deleteProduct(id){
+  if(!confirm('هل أنت متأكد من حذف هذه المادة؟')) return;
+  const {error} = await supabase.from('products').delete().eq('id',id);
+  if(error){ showToast('فشل الحذف','err'); return; }
+  showToast('تم حذف المادة','err');
+  loadData();
+}
+
+function resetForm(){
+  editId=null;
+  ['f-name-ar','f-name-en','f-desc-ar','f-desc-en','f-price'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-grade').value='KG';
+  selType('pdf');
+  isFeatured=false;
+  document.getElementById('feat-ck').className='ck';
+  document.getElementById('feat-ck').innerHTML='';
+  document.getElementById('file-status').textContent='';
+  document.getElementById('form-title').textContent='إضافة مادة تعليمية';
+  document.getElementById('form-sub').textContent='أضف مادة جديدة للمتجر';
+  document.getElementById('submit-btn').textContent='💾 إضافة المادة';
+}
+
+// ---- Navigation ----
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sbi').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const navEl = document.getElementById('nav-'+name);
+  if(navEl) navEl.classList.add('active');
+  if(name==='add') resetForm();
+}
+function showToast(msg,type='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.style.background=type==='err'?'var(--rd)':'var(--gr)';
+  el.style.display='block';
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>el.style.display='none',2800);
+}
+
+// Boot
+selType('pdf');
+checkAuth();
+</script>
+</body>
+</html>
