@@ -4,7 +4,7 @@
 
 ```
 eduspark/
-├── index.html              ← المتجر الرئيسي
+├── index.html              ←  المتجر الرئيسي
 ├── admin.html              ← لوحة التحكم (محمية بتسجيل دخول)
 ├── payment-success.html    ← صفحة ما بعد الدفع
 ├── schema.sql              ← قاعدة البيانات
