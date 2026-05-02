@@ -251,7 +251,7 @@ const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY';
 // ============================================================
 
 const supabaseOpts = window.location.protocol === 'file:' ? { auth: { persistSession: false } } : {};
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, supabaseOpts);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, supabaseOpts);
 const FT = {pdf:{l:'PDF',c:'var(--pdf-c)',b:'var(--pdf-b)'},word:{l:'Word',c:'var(--wd-c)',b:'var(--wd-b)'},ppt:{l:'PPT',c:'var(--pt-c)',b:'var(--pt-b)'},zip:{l:'ZIP',c:'var(--zp-c)',b:'var(--zp-b)'}};
 const PRI=['KG','1','2','3','4','5','6'], MID=['7','8','9'];
 let allProducts=[], allOrders=[], selTypeVal='pdf', isFeatured=false, editId=null;
@@ -267,17 +267,17 @@ async function login(){
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-password').value;
   document.getElementById('login-err').textContent = '';
-  const {error} = await supabase.auth.signInWithPassword({email, password:pass});
+  const {error} = await supabaseClient.auth.signInWithPassword({email, password:pass});
   if(error){ document.getElementById('login-err').textContent = 'بيانات الدخول غير صحيحة'; return; }
   showAdmin();
 }
 async function logout(){
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
   document.getElementById('admin-screen').style.display='none';
   document.getElementById('login-screen').style.display='flex';
 }
 async function checkAuth(){
-  const {data:{session}} = await supabase.auth.getSession();
+  const {data:{session}} = await supabaseClient.auth.getSession();
   if(session){ showAdmin(); }
   else { document.getElementById('login-screen').style.display='flex'; }
 }
@@ -290,8 +290,8 @@ function showAdmin(){
 // ---- Data ----
 async function loadData(){
   const [{data:prods},{data:orders}] = await Promise.all([
-    supabase.from('products').select('*').order('created_at',{ascending:false}),
-    supabase.from('orders').select('*').order('created_at',{ascending:false})
+    supabaseClient.from('products').select('*').order('created_at',{ascending:false}),
+    supabaseClient.from('orders').select('*').order('created_at',{ascending:false})
   ]);
   allProducts = prods||[];
   allOrders   = orders||[];
@@ -402,7 +402,7 @@ async function submitProduct(){
     document.getElementById('file-status').textContent = 'جاري رفع الملف...';
     const ext = file.name.split('.').pop();
     const path = `products/${Date.now()}_${nameAr.replace(/\s/g,'_')}.${ext}`;
-    const {error:upErr} = await supabase.storage.from('eduspark-files').upload(path, file);
+    const {error:upErr} = await supabaseClient.storage.from('eduspark-files').upload(path, file);
     if(upErr){ showToast('فشل رفع الملف: '+upErr.message,'err'); return; }
     filePath = path;
     document.getElementById('file-status').textContent = 'تم رفع الملف ✓';
@@ -411,9 +411,9 @@ async function submitProduct(){
   const payload = {name_ar:nameAr, name_en:nameEn, desc_ar:descAr, desc_en:descEn, price, grade, type:selTypeVal, featured:isFeatured, ...(filePath&&{file_path:filePath})};
   let error;
   if(editId){
-    ({error} = await supabase.from('products').update(payload).eq('id',editId));
+    ({error} = await supabaseClient.from('products').update(payload).eq('id',editId));
   } else {
-    ({error} = await supabase.from('products').insert(payload));
+    ({error} = await supabaseClient.from('products').insert(payload));
   }
   if(error){ showToast('حدث خطأ: '+error.message,'err'); return; }
   showToast(editId?'تم تحديث المادة ✓':'تمت الإضافة بنجاح ✓');
@@ -445,7 +445,7 @@ function editProduct(id){
 
 async function deleteProduct(id){
   if(!confirm('هل أنت متأكد من حذف هذه المادة؟')) return;
-  const {error} = await supabase.from('products').delete().eq('id',id);
+  const {error} = await supabaseClient.from('products').delete().eq('id',id);
   if(error){ showToast('فشل الحذف','err'); return; }
   showToast('تم حذف المادة','err');
   loadData();

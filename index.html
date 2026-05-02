@@ -325,7 +325,7 @@ const EDGE_FN_URL   = `${SUPABASE_URL}/functions/v1/verify-payment`;
 // ============================================================
 
 const supabaseOpts = window.location.protocol === 'file:' ? { auth: { persistSession: false } } : {};
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, supabaseOpts);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, supabaseOpts);
 
 // State
 let allProducts = [], cart = [], lang = 'ar', typeFilter = 'all', gradeFilter = 'all';
@@ -392,7 +392,7 @@ function grBadge(g){ const lc=grColor(g); return `<span class="tg" style="backgr
 // ---- Init ----
 async function init(){
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('products').select('*')
       .order('created_at',{ascending:false});
     if(!error) allProducts = data || [];
@@ -595,7 +595,7 @@ async function proceedToPayment(){
 
   const total = cart.reduce((s,p)=>s+Number(p.price),0);
   // 1️⃣ حفظ الطلب في Supabase أولاً
-  const { data: order, error } = await supabase.from('orders').insert({
+  const { data: order, error } = await supabaseClient.from('orders').insert({
     buyer_email: email,
     buyer_name:  name,
     items: cart.map(p=>({product_id:p.id, name_ar:p.name_ar, price:p.price, file_path:p.file_path})),

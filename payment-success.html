@@ -52,7 +52,7 @@ const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY';
 const EDGE_FN_URL   = `${SUPABASE_URL}/functions/v1/verify-payment`;
 
 const supabaseOpts = window.location.protocol === 'file:' ? { auth: { persistSession: false } } : {};
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, supabaseOpts);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, supabaseOpts);
 
 async function verifyPayment(){
   const params = new URLSearchParams(window.location.search);
@@ -87,7 +87,7 @@ async function showSuccess(downloadUrls){
   // جلب بيانات الطلب لعرض أسماء الملفات
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get('order_id');
-  const {data:order} = await supabase.from('orders').select('*').eq('id',orderId).single();
+  const {data:order} = await supabaseClient.from('orders').select('*').eq('id',orderId).single();
 
   let downloadsHtml = '';
   if(order && Object.keys(downloadUrls).length > 0){
