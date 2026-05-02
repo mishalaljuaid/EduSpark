@@ -160,6 +160,24 @@ body{font-family:'Tajawal',sans-serif;background:var(--cr);min-height:100vh;colo
 /* FOOTER */
 .footer{background:var(--nv);color:rgba(255,255,255,.45);padding:26px 32px;text-align:center}
 .fl2{display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:7px}
+@media (max-width:768px){
+  .nav{padding:12px 16px;flex-wrap:wrap;height:auto;gap:12px;justify-content:center}
+  .nav-r{width:100%;justify-content:center;gap:6px}
+  .hero{padding:40px 16px}
+  .hero h1{font-size:28px}
+  .hero p{font-size:14px}
+  .feats-inner{grid-template-columns:1fr 1fr;gap:16px}
+  .sbar{gap:20px;padding:15px 16px}
+  .sbar > div{width:40%}
+  .drw{width:100%}
+  .modal{padding:20px;max-height:85vh}
+}
+@media (max-width:480px){
+  .feats-inner{grid-template-columns:1fr}
+  .sbar > div{width:100%}
+  .fr{flex-direction:column;align-items:stretch}
+  .fb{width:100%}
+}
 </style>
 </head>
 <body>

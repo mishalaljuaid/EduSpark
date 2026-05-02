@@ -101,6 +101,27 @@ body{font-family:'Tajawal',sans-serif;background:var(--cr);min-height:100vh}
 .dist-n{font-family:'Poppins',sans-serif;font-weight:800;font-size:22px;margin-bottom:3px}
 .dist-l{font-weight:700;font-size:11px}
 .grade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:992px){
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .dist-grid{grid-template-columns:1fr 1fr}
+  .grade-grid{grid-template-columns:1fr}
+}
+@media (max-width:768px){
+  #admin-screen{flex-direction:column !important}
+  .sb{position:static;width:100%;min-height:auto;padding:15px;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:8px}
+  .sb-logo{margin-bottom:0;width:100%;justify-content:center;margin-bottom:12px}
+  .sb-sep, .sb-bottom{display:none}
+  .sbi{width:auto;margin:0;padding:8px 12px;font-size:11px}
+  .main{margin-right:0 !important;margin-left:0 !important;padding:16px}
+  .frow{grid-template-columns:1fr}
+  .type-sel{grid-template-columns:1fr 1fr}
+  div[style*="display:grid;grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important}
+}
+@media (max-width:480px){
+  .stat-grid{grid-template-columns:1fr}
+  .dist-grid{grid-template-columns:1fr}
+  .login-card{width:100%;max-width:340px;padding:24px 16px}
+}
 </style>
 </head>
 <body>
