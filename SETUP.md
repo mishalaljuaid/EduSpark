@@ -16,6 +16,7 @@ eduspark/
 
 ---
 
+
 ## الخطوة 1 — إنشاء حساب Supabase (مجاني)
 
 1. اذهب إلى **https://supabase.com** → اضغط "Start for free"
