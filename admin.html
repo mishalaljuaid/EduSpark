@@ -250,7 +250,8 @@ const SUPABASE_URL  = 'https://YOUR_PROJECT.supabase.co';
 const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY';
 // ============================================================
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const supabaseOpts = window.location.protocol === 'file:' ? { auth: { persistSession: false } } : {};
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, supabaseOpts);
 const FT = {pdf:{l:'PDF',c:'var(--pdf-c)',b:'var(--pdf-b)'},word:{l:'Word',c:'var(--wd-c)',b:'var(--wd-b)'},ppt:{l:'PPT',c:'var(--pt-c)',b:'var(--pt-b)'},zip:{l:'ZIP',c:'var(--zp-c)',b:'var(--zp-b)'}};
 const PRI=['KG','1','2','3','4','5','6'], MID=['7','8','9'];
 let allProducts=[], allOrders=[], selTypeVal='pdf', isFeatured=false, editId=null;

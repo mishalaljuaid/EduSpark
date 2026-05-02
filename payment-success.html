@@ -51,7 +51,8 @@ const SUPABASE_URL  = 'https://YOUR_PROJECT.supabase.co';
 const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY';
 const EDGE_FN_URL   = `${SUPABASE_URL}/functions/v1/verify-payment`;
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const supabaseOpts = window.location.protocol === 'file:' ? { auth: { persistSession: false } } : {};
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, supabaseOpts);
 
 async function verifyPayment(){
   const params = new URLSearchParams(window.location.search);
